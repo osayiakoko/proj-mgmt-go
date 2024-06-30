@@ -36,3 +36,7 @@ CREATE TABLE tasks (
   updated_at timestamptz NOT NULL DEFAULT NOW()
   -- created_at timestamp(0) with time zone NOT NULL DEFAULT NOW(),
 );
+
+CREATE INDEX IF NOT EXISTS tasks_title_idx ON tasks USING GIN (to_tsvector('simple', title)); 
+CREATE INDEX IF NOT EXISTS tasks_priority_idx ON tasks USING HASH (priority);
+CREATE INDEX IF NOT EXISTS tasks_status_idx ON tasks USING HASH (status);
