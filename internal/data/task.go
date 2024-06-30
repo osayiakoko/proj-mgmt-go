@@ -51,13 +51,16 @@ func (t TaskStore) GetAll(title string, priority string, status string, filters 
 	query := `
 		SELECT id, title, description, priority, status, created_at, updated_at
 		FROM tasks
+		WHERE (to_tsvector('simple', title) @@ plainto_tsquery('simple', $1) or $1 = '')
+		AND (LOWER(priority) = LOWER($2) or $2 = '')
+		AND (LOWER(status) = LOWER($3) or $3 = '')
 		ORDER BY id
 	`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	rows, err := t.DB.QueryContext(ctx, query)
+	rows, err := t.DB.QueryContext(ctx, query, title, priority, status)
 	if err != nil {
 		return nil, err
 	}

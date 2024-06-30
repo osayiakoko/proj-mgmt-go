@@ -110,7 +110,7 @@ func (app *application) listTasksHandler(w http.ResponseWriter, r *http.Request)
 
 	input.Title = app.readString(qs, "title", "")
 	input.Priority = app.readString(qs, "priority", "")
-	// input.Description = app.readString(qs, "description", "")
+	input.Status = app.readString(qs, "status", "")
 	input.Page = app.readInt(qs, "page", 1, v)
 	input.PageSize = app.readInt(qs, "page_size", 50, v)
 	input.Sort = app.readString(qs, "sort", "id")
