@@ -14,7 +14,10 @@ func (app *application) routes() *chi.Mux {
 
 	router.Get("/v1/healthcheck", app.healthcheckHandler)
 	router.Post("/v1/tasks", app.createTaskHandler)
-	router.Get("/v1/tasks/{id}", app.showTaskHandler)
+	router.Get("/v1/tasks", app.listTasksHandler)
+	router.Get("/v1/tasks/{id}", app.getTaskHandler)
+	router.Patch("/v1/tasks/{id}", app.updateTaskHandler)
+	router.Delete("/v1/tasks/{id}", app.deleteTaskHandler)
 
 	router.NotFound(app.notFoundResponse)
 	router.MethodNotAllowed(app.methodNotAllowedResponse)

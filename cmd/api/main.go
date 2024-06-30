@@ -10,7 +10,9 @@ import (
 	"os"
 	"time"
 
+	// entsql "entgo.io/ent/dialect/sql"
 	_ "github.com/lib/pq"
+	"github.com/osayiakoko/project-mgmt-sys/internal/data"
 )
 
 const version = "1.0.0"
@@ -29,6 +31,7 @@ type config struct {
 type application struct {
 	config config
 	logger *log.Logger
+	stores data.Stores
 }
 
 func main() {
@@ -56,12 +59,21 @@ func main() {
 	}
 
 	defer db.Close()
-
 	logger.Printf("database connection pool established")
+	
+	// Create an ent.Driver from `db`.
+	// client := EntClient(db)
+	// logger.Printf("entgo client established")
+
+	// ctx := context.Background()
+	// if err := client.Schema.Create(ctx); err != nil {
+    //     log.Printf("failed creating schema resources: %v", err)
+    // }
 
 	app := &application{
 		config: cfg,
 		logger: logger,
+		stores: data.NewStore(db),
 	}
 
 	srv := &http.Server{
@@ -118,3 +130,11 @@ func openDB(cfg config) (*sql.DB, error) {
 	// Return the sql.DB connection pool.
 	return db, nil
 }
+
+
+// func EntClient(db *sql.DB) (*ent.Client){
+// 	drv := entsql.OpenDB(dialect.Postgres, db)
+
+// 	return ent.NewClient(ent.Driver(drv))
+// }
+
