@@ -8,3 +8,5 @@ require (
 )
 
 require entgo.io/ent v0.13.1
+
+require golang.org/x/time v0.5.0 // indirect
