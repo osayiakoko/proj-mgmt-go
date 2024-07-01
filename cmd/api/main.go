@@ -13,6 +13,7 @@ import (
 	// entsql "entgo.io/ent/dialect/sql"
 	_ "github.com/lib/pq"
 	"github.com/osayiakoko/project-mgmt-sys/internal/data"
+	"github.com/osayiakoko/project-mgmt-sys/internal/jsonlog"
 )
 
 const version = "1.0.0"
@@ -30,7 +31,7 @@ type config struct {
 
 type application struct {
 	config config
-	logger *log.Logger
+	logger *jsonlog.Logger
 	stores data.Stores
 }
 
@@ -51,24 +52,26 @@ func main() {
 
 	flag.Parse()
 
-	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
+	// Initialize a new jsonlog.Logger which writes any messages *at or above* the INFO
+	// severity level to the standard out stream.
+	logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo)
 
 	db, err := openDB(cfg)
 	if err != nil {
-		logger.Fatal(err)
+		logger.PrintFatal(err, nil)
 	}
 
 	defer db.Close()
-	logger.Printf("database connection pool established")
-	
+	logger.PrintInfo("database connection pool established", nil)
+
 	// Create an ent.Driver from `db`.
 	// client := EntClient(db)
 	// logger.Printf("entgo client established")
 
 	// ctx := context.Background()
 	// if err := client.Schema.Create(ctx); err != nil {
-    //     log.Printf("failed creating schema resources: %v", err)
-    // }
+	//     log.Printf("failed creating schema resources: %v", err)
+	// }
 
 	app := &application{
 		config: cfg,
@@ -80,13 +83,18 @@ func main() {
 		Addr:         fmt.Sprintf(":%d", cfg.port),
 		Handler:      app.routes(),
 		IdleTimeout:  time.Minute,
+		ErrorLog: log.New(logger, "", 0),
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
 	}
 
-	logger.Printf("starting %s server on %s", cfg.env, srv.Addr)
+	// log.Printf("starting %s server on %s", cfg.env, srv.Addr)
+	logger.PrintInfo("starting server", map[string]string{
+		"addr": srv.Addr,
+		"env":  cfg.env,
+	})
 	err = srv.ListenAndServe()
-	logger.Fatal(err)
+	logger.PrintFatal(err, nil)
 }
 
 // The openDB() function returns a sql.DB connection pool.
@@ -131,10 +139,8 @@ func openDB(cfg config) (*sql.DB, error) {
 	return db, nil
 }
 
-
 // func EntClient(db *sql.DB) (*ent.Client){
 // 	drv := entsql.OpenDB(dialect.Postgres, db)
 
 // 	return ent.NewClient(ent.Driver(drv))
 // }
-
