@@ -9,4 +9,7 @@ require (
 
 require entgo.io/ent v0.13.1
 
-require golang.org/x/time v0.5.0 // indirect
+require (
+	golang.org/x/crypto v0.24.0 // indirect
+	golang.org/x/time v0.5.0 // indirect
+)

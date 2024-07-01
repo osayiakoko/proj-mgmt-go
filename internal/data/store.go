@@ -22,6 +22,11 @@ type Stores struct {
 		Update(*Task) error
 		Delete(int64) error
 	}
+	Users interface{
+		GetByEmail(string) (*User, error)
+		Insert(*User) error
+		Update(*User) error
+	}
 }
 
 // For ease of use, we also add a New() method which returns a Models struct containing
@@ -29,5 +34,6 @@ type Stores struct {
 func NewStore(db *sql.DB) Stores {
 	return Stores{
 		Tasks: TaskStore{DB: db},
+		Users: UserStore{DB: db},
 	}
 }
