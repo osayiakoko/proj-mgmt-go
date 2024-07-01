@@ -8,10 +8,11 @@ import (
 func (app *application) routes() *chi.Mux {
 	router := chi.NewRouter()
 
+	router.Use(middleware.RedirectSlashes)
 	router.Use(middleware.Logger)
 	// router.Use(middleware.Recoverer)
 	router.Use(app.recoverer)
-	router.Use(middleware.RedirectSlashes)
+	router.Use(app.clientRateLimit)
 
 	router.Get("/v1/healthcheck", app.healthcheckHandler)
 	router.Post("/v1/tasks", app.createTaskHandler)
