@@ -95,7 +95,8 @@ func (app *application) getTaskHandler(w http.ResponseWriter, r *http.Request) {
 
 func (app *application) listTasksHandler(w http.ResponseWriter, r *http.Request) {
 
-	// To keep things consistent with our other handlers, we'll define an input struct // to hold the expected values from the request query string.
+	// To keep things consistent with our other handlers, we'll define an input struct 
+	// to hold the expected values from the request query string.
 	var input struct {
 		Title       string            
 		Priority       string            
@@ -114,10 +115,9 @@ func (app *application) listTasksHandler(w http.ResponseWriter, r *http.Request)
 	input.Page = app.readInt(qs, "page", 1, v)
 	input.PageSize = app.readInt(qs, "page_size", 50, v)
 	input.Sort = app.readString(qs, "sort", "id")
-	// input.Filters.Sort = app.readString(qs, "sort", "id")\
 
 	input.SortSafelist = []string{
-		"id", "-d", "title", "-title", "priority", "status"}
+		"id", "-id", "title", "-title", "priority", "status"}
 
 
 	if data.ValidateFilters(v, input.Filters); !v.Valid() {

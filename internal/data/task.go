@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/osayiakoko/project-mgmt-sys/internal/validator"
@@ -48,14 +49,13 @@ func (t TaskStore) Create(task *Task) error {
 }
 
 func (t TaskStore) GetAll(title string, priority string, status string, filters Filters) ([]*Task, error) {
-	query := `
+	query := fmt.Sprintf(`
 		SELECT id, title, description, priority, status, created_at, updated_at
 		FROM tasks
 		WHERE (to_tsvector('simple', title) @@ plainto_tsquery('simple', $1) or $1 = '')
 		AND (LOWER(priority) = LOWER($2) or $2 = '')
 		AND (LOWER(status) = LOWER($3) or $3 = '')
-		ORDER BY id
-	`
+		ORDER BY %s %s, id ASC`, filters.sortColumn(), filters.sortDirection())
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
