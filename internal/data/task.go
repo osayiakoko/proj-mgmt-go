@@ -21,6 +21,8 @@ type Task struct {
 	UpdatedAt   time.Time    `json:"updatedAt"`
 }
 
+type Tasks []*Task
+
 func ValidateTask(v *validator.Validator, task *Task) {
 	v.Check(task.Title != "", "title", "must be provided")
 	v.Check(task.Description != "", "description", "must be provided")
@@ -48,33 +50,37 @@ func (t TaskStore) Create(task *Task) error {
 	return t.DB.QueryRowContext(ctx, query, args...).Scan(&task.ID, &task.CreatedAt, &task.UpdatedAt)
 }
 
-func (t TaskStore) GetAll(title string, priority string, status string, filters Filters) ([]*Task, error) {
+func (t TaskStore) GetAll(title string, priority string, status string, filters Filters) (PaginatedData[Tasks], error) {
 	query := fmt.Sprintf(`
-		SELECT id, title, description, priority, status, created_at, updated_at
+		SELECT count(*) OVER(), id, title, description, priority, status, created_at, updated_at
 		FROM tasks
 		WHERE (to_tsvector('simple', title) @@ plainto_tsquery('simple', $1) or $1 = '')
 		AND (LOWER(priority) = LOWER($2) or $2 = '')
 		AND (LOWER(status) = LOWER($3) or $3 = '')
-		ORDER BY %s %s, id ASC`, filters.sortColumn(), filters.sortDirection())
+		ORDER BY %s %s, id ASC
+		LIMIT $4 OFFSET $5`, filters.sortColumn(), filters.sortDirection())
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	rows, err := t.DB.QueryContext(ctx, query, title, priority, status)
+	rows, err := t.DB.QueryContext(ctx, query, title, priority, status,
+		filters.limit(), filters.offset())
 	if err != nil {
-		return nil, err
+		return PaginatedData[Tasks]{}, err
 	}
 
 	// Importantly, defer a call to rows.Close() to ensure that the resultset is closed
 	// before GetAll() returns.
 	defer rows.Close()
 
-	tasks := []*Task{}
+	totalRecords := 0
+	tasks := Tasks{}
 
 	for rows.Next() {
 		var task Task
 
 		err := rows.Scan(
+			&totalRecords,
 			&task.ID,
 			&task.Title,
 			&task.Description,
@@ -85,7 +91,7 @@ func (t TaskStore) GetAll(title string, priority string, status string, filters 
 		)
 
 		if err != nil {
-			return nil, err
+			return PaginatedData[Tasks]{}, err
 		}
 
 		tasks = append(tasks, &task)
@@ -94,10 +100,14 @@ func (t TaskStore) GetAll(title string, priority string, status string, filters 
 	// When the rows.Next() loop has finished, call rows.Err() to retrieve any error
 	// that was encountered during the iteration.
 	if err = rows.Err(); err != nil {
-		return nil, err
+		return PaginatedData[Tasks]{}, err
 	}
 
-	return tasks, nil
+	// Generate a Metadata struct, passing in the total record count and pagination
+	// parameters from the client.
+	paginatedTasks := paginateData(tasks, totalRecords, filters.Page, filters.PageSize)
+
+	return paginatedTasks, nil
 }
 
 func (t TaskStore) Get(id int64) (*Task, error) {

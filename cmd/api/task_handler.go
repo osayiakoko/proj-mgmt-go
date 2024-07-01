@@ -95,13 +95,13 @@ func (app *application) getTaskHandler(w http.ResponseWriter, r *http.Request) {
 
 func (app *application) listTasksHandler(w http.ResponseWriter, r *http.Request) {
 
-	// To keep things consistent with our other handlers, we'll define an input struct 
+	// To keep things consistent with our other handlers, we'll define an input struct
 	// to hold the expected values from the request query string.
 	var input struct {
-		Title       string            
-		Priority       string            
-		Status       string            
-		Description string   
+		Title       string
+		Priority    string
+		Status      string
+		Description string
 		data.Filters
 	}
 
@@ -119,7 +119,6 @@ func (app *application) listTasksHandler(w http.ResponseWriter, r *http.Request)
 	input.SortSafelist = []string{
 		"id", "-id", "title", "-title", "priority", "status"}
 
-
 	if data.ValidateFilters(v, input.Filters); !v.Valid() {
 		app.failedValidationResponse(w, r, v.Errors)
 		return
@@ -128,6 +127,7 @@ func (app *application) listTasksHandler(w http.ResponseWriter, r *http.Request)
 	tasks, err := app.stores.Tasks.GetAll(input.Title, input.Priority, input.Status, input.Filters)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
+		return
 	}
 
 	app.okResponse(w, tasks)
@@ -186,9 +186,9 @@ func (app *application) updateTaskHandler(w http.ResponseWriter, r *http.Request
 
 	err = app.stores.Tasks.Update(task)
 	if err != nil {
-		switch  {
+		switch {
 		case errors.Is(err, data.ErrEditConflict):
-			app.errorResponse(w, r, http.StatusConflict, 
+			app.errorResponse(w, r, http.StatusConflict,
 				"unable to update the record due to an edit conflict, please try again")
 		default:
 			app.serverErrorResponse(w, r, err)
