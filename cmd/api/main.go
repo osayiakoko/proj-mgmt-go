@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"flag"
 	"os"
+	"sync"
 	"time"
 
 	// entsql "entgo.io/ent/dialect/sql"
@@ -44,6 +45,7 @@ type application struct {
 	logger *jsonlog.Logger
 	stores data.Stores
 	mailer mailer.Mailer
+	wg     sync.WaitGroup
 }
 
 func main() {
