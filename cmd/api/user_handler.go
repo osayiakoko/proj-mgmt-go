@@ -54,6 +54,15 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		}
 		return
 	}
-	
+
+	// Launch a background goroutine to send the welcome email.
+	app.background(func() {
+		// Send the welcome email.
+		err = app.mailer.Send(user.Email, "user_welcome.tmpl", user)
+		if err != nil {
+			app.logger.PrintError(err, nil)
+		}
+	})
+
 	app.createdResponse(w, user)
 }
