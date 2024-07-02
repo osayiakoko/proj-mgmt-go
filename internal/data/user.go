@@ -52,7 +52,7 @@ type User struct {
 	Password  password  `json:"-"`
 	Activated bool      `json:"activated"`
 	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	// UpdatedAt time.Time `json:"updated_at"`
 	Version   int       `json:"-"`
 }
 
@@ -104,7 +104,7 @@ func (m UserStore) Insert(user *User) error {
 	query := `
 		INSERT INTO users (name, email, password_hash, activated) 
 		VALUES ($1, $2, $3, $4)
-		RETURNING id, created_at, updated_at, version`
+		RETURNING id, created_at, version`
 
 	args := []any{user.Name, user.Email, user.Password.hash, user.Activated}
 
@@ -115,7 +115,7 @@ func (m UserStore) Insert(user *User) error {
 	// to perform the insert there will be a violation of the UNIQUE "users_email_key"
 	// constraint that we set up in the previous chapter. We check for this error
 	// specifically, and return custom ErrDuplicateEmail error instead.
-	err := m.DB.QueryRowContext(ctx, query, args...).Scan(&user.ID, &user.CreatedAt, &user.UpdatedAt, &user.Version)
+	err := m.DB.QueryRowContext(ctx, query, args...).Scan(&user.ID, &user.CreatedAt, &user.Version)
 	if err != nil {
 		switch {
 		case err.Error() == `pq: duplicate key value violates unique constraint "users_email_key"`:

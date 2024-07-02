@@ -15,11 +15,16 @@ func (app *application) routes() *chi.Mux {
 	router.Use(app.clientRateLimit)
 
 	router.Get("/v1/healthcheck", app.healthcheckHandler)
+
+	// TASKS route
 	router.Post("/v1/tasks", app.createTaskHandler)
 	router.Get("/v1/tasks", app.listTasksHandler)
 	router.Get("/v1/tasks/{id}", app.getTaskHandler)
 	router.Patch("/v1/tasks/{id}", app.updateTaskHandler)
 	router.Delete("/v1/tasks/{id}", app.deleteTaskHandler)
+	
+	// USERS route
+	router.Post("/v1/users", app.registerUserHandler)
 
 	router.NotFound(app.notFoundResponse)
 	router.MethodNotAllowed(app.methodNotAllowedResponse)
