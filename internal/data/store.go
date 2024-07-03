@@ -3,6 +3,7 @@ package data
 import (
 	"database/sql"
 	"errors"
+	"time"
 )
 
 // Define a custom ErrRecordNotFound error. We'll return this from our Get() method when
@@ -22,10 +23,15 @@ type Stores struct {
 		Update(*Task) error
 		Delete(int64) error
 	}
-	Users interface{
+	Users interface {
 		GetByEmail(string) (*User, error)
 		Insert(*User) error
 		Update(*User) error
+	}
+	Tokens interface {
+		New(int64, time.Duration, string) (*Token, error)
+		Insert(*Token) error
+		DeleteAllForUser(string, int64) error
 	}
 }
 
@@ -33,7 +39,8 @@ type Stores struct {
 // the initialized TaskStore.
 func NewStore(db *sql.DB) Stores {
 	return Stores{
-		Tasks: TaskStore{DB: db},
-		Users: UserStore{DB: db},
+		Tasks:  TaskStore{DB: db},
+		Users:  UserStore{DB: db},
+		Tokens: TokenStore{DB: db},
 	}
 }
