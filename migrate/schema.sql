@@ -51,3 +51,11 @@ CREATE TABLE IF NOT EXISTS users (
   activated bool NOT NULL,
   version integer NOT NULL DEFAULT 1
 );
+
+
+CREATE TABLE IF NOT EXISTS tokens (
+  user_id bigint NOT NULL REFERENCES users ON DELETE CASCADE,
+  expiry timestamptz NOT NULL,
+  hash bytea PRIMARY KEY,
+  scope text NOT NULL
+);
