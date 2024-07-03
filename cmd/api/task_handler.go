@@ -188,8 +188,7 @@ func (app *application) updateTaskHandler(w http.ResponseWriter, r *http.Request
 	if err != nil {
 		switch {
 		case errors.Is(err, data.ErrEditConflict):
-			app.errorResponse(w, r, http.StatusConflict,
-				"unable to update the record due to an edit conflict, please try again")
+			app.editConflictResponse(w, r)
 		default:
 			app.serverErrorResponse(w, r, err)
 		}

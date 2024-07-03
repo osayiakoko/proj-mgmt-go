@@ -22,9 +22,10 @@ func (app *application) routes() *chi.Mux {
 	router.Get("/v1/tasks/{id}", app.getTaskHandler)
 	router.Patch("/v1/tasks/{id}", app.updateTaskHandler)
 	router.Delete("/v1/tasks/{id}", app.deleteTaskHandler)
-	
+
 	// USERS route
 	router.Post("/v1/users", app.registerUserHandler)
+	router.Put("/v1/users/activate", app.activateUserHandler)
 
 	router.NotFound(app.notFoundResponse)
 	router.MethodNotAllowed(app.methodNotAllowedResponse)

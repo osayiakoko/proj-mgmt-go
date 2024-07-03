@@ -27,6 +27,7 @@ type Stores struct {
 		GetByEmail(string) (*User, error)
 		Insert(*User) error
 		Update(*User) error
+		GetForToken(string, string) (*User, error)
 	}
 	Tokens interface {
 		New(int64, time.Duration, string) (*Token, error)
