@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/osayiakoko/project-mgmt-sys/internal/data"
 	"github.com/osayiakoko/project-mgmt-sys/internal/validator"
@@ -55,10 +56,24 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	// After the user record has been created in the database, generate a new activation
+	// token for the user.
+	token, err := app.stores.Tokens.New(user.ID, 3*24*time.Hour, data.ScopeActivation)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
 	// Launch a background goroutine to send the welcome email.
 	app.background(func() {
+
+		data := map[string]any{
+			"activationToken": token.Plaintext,
+			"userID":          user.ID,
+		}
+
 		// Send the welcome email.
-		err = app.mailer.Send(user.Email, "user_welcome.tmpl", user)
+		err = app.mailer.Send(user.Email, "user_welcome.tmpl", data)
 		if err != nil {
 			app.logger.PrintError(err, nil)
 		}
