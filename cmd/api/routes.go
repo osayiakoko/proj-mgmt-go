@@ -13,6 +13,7 @@ func (app *application) routes() *chi.Mux {
 	// router.Use(middleware.Recoverer)
 	router.Use(app.recoverer)
 	router.Use(app.clientRateLimit)
+	router.Use(app.authenticate)
 
 	router.Get("/v1/healthcheck", app.healthcheckHandler)
 
