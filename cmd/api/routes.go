@@ -27,6 +27,9 @@ func (app *application) routes() *chi.Mux {
 	router.Post("/v1/users", app.registerUserHandler)
 	router.Put("/v1/users/activate", app.activateUserHandler)
 
+	// AUTHS route
+	router.Post("/v1/auths/login", app.createAuthenticationTokenHandler)
+
 	router.NotFound(app.notFoundResponse)
 	router.MethodNotAllowed(app.methodNotAllowedResponse)
 
