@@ -56,6 +56,13 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	// Add the "tasks:read" permission for the new user.
+	err = app.stores.Permissions.AddForUser(user.ID, data.TaskReadPermission)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
 	// After the user record has been created in the database, generate a new activation
 	// token for the user.
 	token, err := app.stores.Tokens.New(user.ID, 3*24*time.Hour, data.ScopeActivation)
