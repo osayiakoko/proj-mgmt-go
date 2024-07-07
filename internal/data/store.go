@@ -34,14 +34,19 @@ type Stores struct {
 		Insert(*Token) error
 		DeleteAllForUser(string, int64) error
 	}
+	Permissions interface {
+		GetAllForUser(int64) (Permissions, error)
+		AddForUser(int64, ...string) error
+	}
 }
 
 // For ease of use, we also add a New() method which returns a Models struct containing
 // the initialized TaskStore.
 func NewStore(db *sql.DB) Stores {
 	return Stores{
-		Tasks:  TaskStore{DB: db},
-		Users:  UserStore{DB: db},
-		Tokens: TokenStore{DB: db},
+		Tasks:       TaskStore{DB: db},
+		Users:       UserStore{DB: db},
+		Tokens:      TokenStore{DB: db},
+		Permissions: PermissionStore{DB: db},
 	}
 }

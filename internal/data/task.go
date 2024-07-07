@@ -10,6 +10,11 @@ import (
 	"github.com/osayiakoko/project-mgmt-sys/internal/validator"
 )
 
+const (
+	TaskReadPermission  = "tasks:read"
+	TaskWritePermission = "tasks:write"
+)
+
 // Task Struct
 type Task struct {
 	ID          int64        `json:"id"`
