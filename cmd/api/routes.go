@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/osayiakoko/project-mgmt-sys/internal/data"
 )
 
 func (app *application) routes() *chi.Mux {
@@ -18,11 +19,11 @@ func (app *application) routes() *chi.Mux {
 	router.Get("/v1/healthcheck", app.healthcheckHandler)
 
 	// TASKS route
-	router.Post("/v1/tasks", app.requireActivatedUser(app.createTaskHandler))
-	router.Get("/v1/tasks", app.requireActivatedUser(app.listTasksHandler))
-	router.Get("/v1/tasks/{id}", app.requireActivatedUser(app.getTaskHandler))
-	router.Patch("/v1/tasks/{id}", app.requireActivatedUser(app.updateTaskHandler))
-	router.Delete("/v1/tasks/{id}", app.requireActivatedUser(app.deleteTaskHandler))
+	router.Post("/v1/tasks", app.requirePermission(data.TaskWritePermission, app.createTaskHandler))
+	router.Get("/v1/tasks", app.requirePermission(data.TaskReadPermission, app.listTasksHandler))
+	router.Get("/v1/tasks/{id}", app.requirePermission(data.TaskReadPermission, app.getTaskHandler))
+	router.Patch("/v1/tasks/{id}", app.requirePermission(data.TaskWritePermission, app.updateTaskHandler))
+	router.Delete("/v1/tasks/{id}", app.requirePermission(data.TaskWritePermission, app.deleteTaskHandler))
 
 	// USERS route
 	router.Post("/v1/users", app.registerUserHandler)
