@@ -1,6 +1,8 @@
 package main
 
 import (
+	"expvar"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/osayiakoko/project-mgmt-sys/internal/data"
@@ -11,6 +13,7 @@ func (app *application) routes() *chi.Mux {
 
 	// router.Use(middleware.Recoverer)
 	router.Use(app.recoverer)
+	router.Use(app.metrics)
 	router.Use(middleware.Logger)
 	router.Use(middleware.RedirectSlashes)
 	router.Use(app.enableCORS)
@@ -32,6 +35,9 @@ func (app *application) routes() *chi.Mux {
 
 	// AUTHS route
 	router.Post("/v1/auths/login", app.createAuthenticationTokenHandler)
+
+	// Register a new GET /debug/vars endpoint pointing to the expvar handler.
+	router.Handle("/debug/vars", expvar.Handler())
 
 	router.NotFound(app.notFoundResponse)
 	router.MethodNotAllowed(app.methodNotAllowedResponse)
