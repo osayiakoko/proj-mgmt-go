@@ -9,10 +9,11 @@ import (
 func (app *application) routes() *chi.Mux {
 	router := chi.NewRouter()
 
-	router.Use(middleware.RedirectSlashes)
-	router.Use(middleware.Logger)
 	// router.Use(middleware.Recoverer)
 	router.Use(app.recoverer)
+	router.Use(middleware.Logger)
+	router.Use(middleware.RedirectSlashes)
+	router.Use(app.enableCORS)
 	router.Use(app.clientRateLimit)
 	router.Use(app.authenticate)
 
