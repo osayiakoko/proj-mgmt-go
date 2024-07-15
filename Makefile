@@ -5,7 +5,7 @@ run: build
 
 
 build: 
-	@wgo build -o bin/project-mgmt-sys cmd/api/main.go
+	@go build -o bin/project-mgmt-sys cmd/api/main.go
 
 runserver: 
 	@wgo run ./cmd/api
