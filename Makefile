@@ -1,3 +1,5 @@
+include .envrc
+
 ## help: print this help message
 .PHONY: help
 help:
@@ -49,21 +51,14 @@ migdiff:
 migapply: confirm
 	@atlas migrate apply \
 		--dir file://migrate/migrations \
-		--url "postgres://projmgmt:projmgmt@localhost:5436/projmgmt?sslmode=disable"
-
-## migapplyprod: apply database migration for prod environment
-.PHONY: migapplyprod
-migapplyprod:
-	@atlas migrate apply \
-		--dir file://migrate/migrations \
-
+		--url ${PROJMGMT_DB_DSN}
 
 ## migstatus: checks db migration status
 .PHONY: migstatus
 migstatus:
 	@atlas migrate status \
 		--dir file://migrate/migrations \
-		--url "postgres://projmgmt:projmgmt@localhost:5436/projmgmt?sslmode=disable"
+		--url ${PROJMGMT_DB_DSN}
 
 ## mighash: hashes database migration file
 .PHONY: mighash
@@ -83,7 +78,7 @@ miglint:
 migdown:
 	@atlas migrate down \
 		--dir file://migrate/migrations \
-		--url "postgres://projmgmt:projmgmt@localhost:5436/projmgmt?sslmode=disable" \
+		--url ${PROJMGMT_DB_DSN} \
 		--dev-url "docker://postgres/14.2-alpine/test?search_path=public"
 
 ## migdownver: 
@@ -91,6 +86,6 @@ migdown:
 migdownver:
 	@atlas migrate down \
 		--dir file://migrate/migrations \
-		--url "postgres://projmgmt:projmgmt@localhost:5436/projmgmt?sslmode=disable" \
+		--url ${PROJMGMT_DB_DSN} \
 		--dev-url "docker://postgres/14.2-alpine/test?search_path=public" \
 		--to-version $(MVER)

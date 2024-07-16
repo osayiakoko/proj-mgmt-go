@@ -1,0 +1,1 @@
+export PROJMGMT_DB_DSN=postgres://projmgmt:projmgmt@localhost:5436/projmgmt?sslmode=disable
